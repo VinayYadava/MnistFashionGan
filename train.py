@@ -45,17 +45,16 @@ d_opt = Adam(learning_rate=0.00001)
 g_loss = BinaryCrossentropy()
 d_loss = BinaryCrossentropy()
 
-discriminator = Discriminator()
-generator = Generator()
 
 fashgan = FashionGAN()
 fashgan.compile(g_opt, d_opt, g_loss, d_loss)
 
 checkpoint_dir = 'tmp/checkpoint'
 
+checkpoint_interval=4
 
-#hist = fashgan.fit(ds, epochs=2000, callbacks=[ModelMonitor(),generator_checkpoint_callback,discriminator_checkpoint_callback])
-hist = fashgan.fit(ds, epochs=2000, callbacks=[ModelMonitor(),CheckpointCallback(generator,discriminator,checkpoint_dir,2)])
+hist = fashgan.fit(ds, epochs=2000, callbacks=[ModelMonitor(),CheckpointCallback(generator,discriminator, checkpoint_dir, checkpoint_interval,20)])
+#hist = fashgan.fit(ds, epochs=2000)
 
 plt.suptitle('Loss')
 plt.plot(hist.history['d_loss'], label='d_loss')
