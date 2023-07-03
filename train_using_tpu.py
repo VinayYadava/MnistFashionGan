@@ -19,21 +19,12 @@ if os.path.exists('tmp/checkpoint')==False:
 
 ds = tds.load("fashion_mnist",split="train")
 
-def serialize_example(image, label):
-    feature = {
-        'image': tf.train.Feature(bytes_list=tf.train.BytesList(value=[tf.io.encode_jpeg(image).numpy()])),
-    }
-    example_proto = tf.train.Example(features=tf.train.Features(feature=feature))
-    return example_proto.SerializeToString()
-def write_tfrecord(dataset, filename):
-    with tf.io.TFRecordWriter(filename) as writer:
-        for image in dataset:
-            serialized_example = serialize_example(image)
-            writer.write(serialized_example)
-
-write_tfrecord(ds, 'train.tfrecord')
-
-
+try:
+  gpus = tf.config.experimental.list_physical_devices()
+  for gpu in gpus:
+    tf.config.experimental.set_memory_growth(gpu,True)
+except:
+  print("Not using GPU")
 
 
 def scale_image(data):
