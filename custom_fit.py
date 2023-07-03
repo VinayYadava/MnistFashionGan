@@ -10,7 +10,9 @@ class FashionGAN(Model):
         
         # Create attributes for gen and disc
         self.generator = Generator()
+        self.generator.build(input_shape=(128,1))
         self.discriminator = Discriminator()
+        self.discriminator.build(input_shape=(28,28,1))
         
     def compile(self, g_opt, d_opt, g_loss, d_loss, *args, **kwargs): 
         # Compile with base class
