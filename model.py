@@ -62,18 +62,63 @@ class Discriminator(Model):
   def __init__(self,  *args, **kwargs):
     # Pass through args and kwargs to base class 
     super().__init__(*args, **kwargs)
-    self.discriminator=build_discriminator()
+    self.conv1=Conv2D(32,5,input_shape=(28,28,1))
+    self.activation=LeakyReLU(0.2)
+    self.conv2=Conv2D(64,5)
+    self.conv3=Conv2D(128,5)
+    self.conv4=Conv2D(256,5)
+    self.dense=Dense(1,activation="sigmoid")
+    self.dropout=Dropout(0.4)
+    self.flatten = Flatten()
+    
 
   def call(self,inputs,training=False):
-    return self.discriminator(inputs)
+    x=self.conv1(inputs)
+    x=self.activation(x)
+    x=self.dropout(x)
+    x=self.conv2(x)
+    x=self.activation(x)
+    x=self.dropout(x)
+    x=self.conv3(x)
+    x=self.activation(x)
+    x=self.dropout(x)
+    x=self.conv4(x)
+    x=self.activation(x)
+    x=self.dropout(x)
+    x=self.flatten(x)
+    x=self.dropout(x)
+    x=self.dense(x)
+    
+    
+    return x
 
 class Generator(Model):
-  def __init__(self,  *args, **kwargs):
-    # Pass through args and kwargs to base class 
+  def __init__(self,  *args, **kwargs): 
     super().__init__(*args, **kwargs)
-    self.generator=build_generator()
+    self.dense=Dense(7*7*128,input_dim=128)
+    self.activation=LeakyReLU(0.2)
+    self.reshape=Reshape((7,7,128))
+    self.upsample=UpSampling2D()
+    self.conv1=Conv2D(128, 5,padding='same')
+    self.conv2=Conv2D(128, 4,padding='same')
+    self.conv3=Conv2D(1, 4,padding='same',activation="sigmoid")
 
   def call(self,inputs,training=False):
-    return self.generator(inputs)
-  
+    x=self.dense(inputs)
+    x=self.activation(x)
+    x=self.reshape(x)
+    x=self.upsample(x)
+    x=self.conv1(x)
+    x=self.activation(x)
+    x=self.upsample(x)
+    x=self.conv1(x)
+    x=self.activation(x)
+    x=self.upsample(x)
+    x=self.conv2(x)
+    x=self.activation(x)
+    x=self.upsample(x)
+    x=self.conv2(x)
+    x=self.activation(x)
+    x=self.conv3(x)
+    return x
     
