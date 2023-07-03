@@ -38,9 +38,9 @@ class CheckpointCallback(tf.keras.callbacks.Callback):
         self.discriminator_checkpoint_dir=checkpoint_dir+"/discriminator"
 
         self.checkpoint_interval = checkpoint_interval
-        self.generator_checkpoint = tf.train.Checkpoint(model=generator)
+        self.generator_checkpoint = tf.train.Checkpoint(model=self.model.generator)
         self.generator_checkpoint_manager = tf.train.CheckpointManager(self.generator_checkpoint, self.generator_checkpoint_dir,max_to_keep)
-        self.discriminator_checkpoint = tf.train.Checkpoint(model=discriminator)
+        self.discriminator_checkpoint = tf.train.Checkpoint(model=self.model.discriminator)
         self.discriminator_checkpoint_manager = tf.train.CheckpointManager(self.discriminator_checkpoint, self.discriminator_checkpoint_dir,max_to_keep)
 
 
