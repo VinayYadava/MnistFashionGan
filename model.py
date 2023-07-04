@@ -97,6 +97,7 @@ class Discriminator(Model):
     x=self.dense(x)
     return x
 
+
 class Generator(Model):
   def __init__(self,  *args, **kwargs):
     super().__init__(*args, **kwargs)
@@ -109,8 +110,6 @@ class Generator(Model):
     self.reshape=Reshape((7,7,128))
     self.upsample1=UpSampling2D()
     self.upsample2=UpSampling2D()
-    self.upsample3=UpSampling2D()
-    self.upsample4=UpSampling2D()
     self.conv1_1=Conv2D(128, 5,padding='same')
     self.conv1_2=Conv2D(128, 5,padding='same')
     self.conv2_1=Conv2D(128, 4,padding='same')
@@ -121,22 +120,25 @@ class Generator(Model):
     x=self.dense(inputs)
     x=self.activation1(x)
     x=self.reshape(x)
+
     x=self.upsample1(x)
     x=self.conv1_1(x)
     x=self.activation2(x)
+
     x=self.upsample2(x)
     x=self.conv1_2(x)
     x=self.activation3(x)
-    x=self.upsample3(x)
+
     x=self.conv2_1(x)
     x=self.activation4(x)
-    x=self.upsample4(x)
+
     x=self.conv2_2(x)
     x=self.activation5(x)
+
     x=self.conv3(x)
     return x
 
   def model(self):
-    input=Input(shape=(1,))
+    input=Input(shape=(128))
     output=self.call(input)
     return Model(inputs=input,outputs=output)
