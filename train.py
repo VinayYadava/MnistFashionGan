@@ -53,7 +53,16 @@ checkpoint_dir = 'tmp/checkpoint'
 
 checkpoint_interval=4
 
-hist = fashgan.fit(ds, epochs=2000, callbacks=[ModelMonitor(),CheckpointCallback(generator,discriminator, checkpoint_dir, checkpoint_interval,20)])
+hist = fashgan.fit(ds, 
+                   epochs=2000, 
+                   callbacks=[ModelMonitor(),
+                   CheckpointCallback(model=fashgan, 
+                                      checkpoint_dir=checkpoint_dir, 
+                                      checkpoint_interval=checkpoint_interval,
+                                      max_to_keep=20
+                                      )
+                              ]
+                  )
 #hist = fashgan.fit(ds, epochs=2000)
 
 plt.suptitle('Loss')
