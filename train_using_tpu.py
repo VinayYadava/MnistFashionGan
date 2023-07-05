@@ -56,7 +56,21 @@ checkpoint_filepath = 'tmp/checkpoint'
 #    filepath=checkpoint_filepath,
 #    monitor='g_loss' )
 
-hist = fashgan.fit(ds, epochs=2000, callbacks=[ModelMonitor(),model_checkpoint_callback])
+
+checkpoint_dir = 'tmp/checkpoint'
+
+checkpoint_interval=4
+
+hist = fashgan.fit(ds, 
+                   epochs=2000, 
+                   callbacks=[ModelMonitor(),
+                   CheckpointCallback(model=fashgan, 
+                                      checkpoint_dir=checkpoint_dir, 
+                                      checkpoint_interval=checkpoint_interval,
+                                      max_to_keep=20
+                                      )
+                              ]
+                  )
 
 
 plt.suptitle('Loss')
