@@ -27,7 +27,8 @@ class FashionGAN(Model):
     def train_step(self, batch):
         # Get the data 
         real_images = batch
-        fake_images = self.generator(tf.random.normal((128, 128, 1)), training=False)
+        #print(f"{self.generator.layers[0].input_shape} : hehr")
+        fake_images = self.generator(tf.random.normal((128, 128)), training=False)
         
         # Train the discriminator
         with tf.GradientTape() as d_tape: 
@@ -54,7 +55,8 @@ class FashionGAN(Model):
         # Train the generator 
         with tf.GradientTape() as g_tape: 
             # Generate some new images
-            gen_images = self.generator(tf.random.normal((128,128,1)), training=True)
+            #print(f"{self.generator.layers[0].input_shape} : hehr")
+            gen_images = self.generator(tf.random.normal((128,128)), training=True)
                                         
             # Create the predicted labels
             predicted_labels = self.discriminator(gen_images, training=False)
