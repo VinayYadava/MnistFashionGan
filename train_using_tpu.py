@@ -6,6 +6,7 @@ from model import *
 from custom_fit import *
 
 
+
 # Adam is going to be the optimizer for both
 from tensorflow.keras.optimizers import Adam
 # Binary cross entropy is going to be the loss for both 
@@ -14,17 +15,32 @@ from tensorflow.keras.losses import BinaryCrossentropy
 if os.path.exists("images")==False:
   os.mkdir("images")
 if os.path.exists('tmp/checkpoint')==False:
-  os.mkdir('tmp/checkpoint')
   os.mkdir('tmp')
+  os.mkdir('tmp/checkpoint')
 
 ds = tds.load("fashion_mnist",split="train")
 
+
 try:
-  gpus = tf.config.experimental.list_physical_devices()
-  for gpu in gpus:
-    tf.config.experimental.set_memory_growth(gpu,True)
+  cluster_resolver = tf.distribute.cluster_resolver.TPUClusterResolver(tpu='')
+except Exception as e:
+  print(e)
+  print("issue in cluster address")
+
+try:
+  tf.config.experimental_connect_to_cluster(cluster_resolver)
 except:
-  print("Not using GPU")
+  print("could not find cluster resolver")
+try:
+  tf.tpu.experimental.initialize_tpu_system(cluster_resolver)
+except:
+  print("could not initialize tpu")
+try:
+  tpu_strategy = tf.distribute.TPUStrategy(cluster_resolver)
+except:
+  print("could not define the tpu stratgy")
+
+
 
 
 def scale_image(data):
@@ -44,22 +60,20 @@ d_opt = Adam(learning_rate=0.00001)
 g_loss = BinaryCrossentropy()
 d_loss = BinaryCrossentropy()
 
-discriminator = build_discriminator()
-generator = build_generator()
 
 with strategy.scope():
-    fashgan = FashionGAN(generator, discriminator)
+    fashgan = FashionGAN()
+
+
 fashgan.compile(g_opt, d_opt, g_loss, d_loss)
 
 checkpoint_filepath = 'tmp/checkpoint'
-#model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
-#    filepath=checkpoint_filepath,
-#    monitor='g_loss' )
 
 
 checkpoint_dir = 'tmp/checkpoint'
 
 checkpoint_interval=4
+
 
 hist = fashgan.fit(ds, 
                    epochs=2000, 
@@ -71,6 +85,7 @@ hist = fashgan.fit(ds,
                                       )
                               ]
                   )
+
 
 
 plt.suptitle('Loss')
