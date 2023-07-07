@@ -18,7 +18,7 @@ if os.path.exists('tmp/checkpoint')==False:
   os.mkdir('tmp')
   os.mkdir('tmp/checkpoint')
 
-ds = tds.load("fashion_mnist",split="train")
+ds = tds.load("fashion_mnist",data_dir="/content/drive/MyDrive/data1",split="train")
 
 
 try:
@@ -47,21 +47,26 @@ def scale_image(data):
   image = data['image']
   return image / 255
 
+BUFFER_SIZE = len(ds)
 
+BATCH_SIZE_PER_REPLICA = 32
+GLOBAL_BATCH_SIZE = BATCH_SIZE_PER_REPLICA * tpu_strategy.num_replicas_in_sync
+
+EPOCHS = 10
 #map,cache,shuffle,batch,prefetch
 ds=ds.map(scale_image)
 ds=ds.cache()
-ds=ds.shuffle(60000)
-ds=ds.batch(128)
+ds=ds.shuffle(BUFFER_SIZE)
+ds=ds.batch(GLOBAL_BATCH_SIZE)
 ds=ds.prefetch(64)
 
 g_opt = Adam(learning_rate=0.0001) 
 d_opt = Adam(learning_rate=0.00001) 
-g_loss = BinaryCrossentropy()
-d_loss = BinaryCrossentropy()
+g_loss = BinaryCrossentropy( reduction='sum')
+d_loss = BinaryCrossentropy( reduction='sum')
 
 
-with strategy.scope():
+with tpu_strategy.scope():
     fashgan = FashionGAN()
 
 
